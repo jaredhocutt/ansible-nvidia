@@ -1,0 +1,31 @@
+---
+
+- name: Add RPM Fusion repos
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-{{ ansible_distribution_major_version }}.noarch.rpm
+    - https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-{{ ansible_distribution_major_version }}.noarch.rpm
+  become: yes
+
+- name: Install NVIDIA drivers
+  dnf:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - xorg-x11-drv-nvidia
+    - akmod-nvidia
+    - kernel-devel
+    - vdpauinfo
+    - libva-vdpau-driver
+    - libva-utils
+  become: yes
+
+- name: Disable Wayland (not supported by NVIDIA)
+  lineinfile:
+    path: /etc/gdm/custom.conf
+    regexp: "WaylandEnable="
+    line: "WaylandEnable=false"
+    state: present
+  become: yes
